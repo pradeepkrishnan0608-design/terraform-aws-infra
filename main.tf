@@ -1,8 +1,8 @@
- 
 
-terraform{
 
-required_providers {
+terraform {
+
+  required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.0"
@@ -11,7 +11,7 @@ required_providers {
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
 }
 
 resource "aws_vpc" "myvpc" {
@@ -24,18 +24,18 @@ resource "aws_vpc" "myvpc" {
 }
 
 resource "aws_subnet" "pubsub" {
-  vpc_id     = aws_vpc.myvpc.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "ap-south-1a" 
+  vpc_id            = aws_vpc.myvpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "ap-south-1a"
   tags = {
     Name = "My-Public-Subnet"
   }
 }
 
 resource "aws_subnet" "prisub" {
-  vpc_id     = aws_vpc.myvpc.id
-  cidr_block = "10.0.2.0/24"
-  availability_zone = "ap-south-1c" 
+  vpc_id            = aws_vpc.myvpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "ap-south-1c"
 
   tags = {
     Name = "My-Private-Subnet"
@@ -78,11 +78,11 @@ resource "aws_nat_gateway" "mynat" {
   }
 }
 
-  resource "aws_route_table" "prirt" {
+resource "aws_route_table" "prirt" {
   vpc_id = aws_vpc.myvpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.mynat.id
   }
 
@@ -100,16 +100,16 @@ resource "aws_security_group" "pubsg" {
   description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id      = aws_vpc.myvpc.id
 
-   ingress {
-    description      = "TLS from vpc"
-    from_port        = 0
-    to_port          = 65535
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+  ingress {
+    description = "TLS from vpc"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
 
-   egress {
+  egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
@@ -127,16 +127,16 @@ resource "aws_security_group" "prisg" {
   description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id      = aws_vpc.myvpc.id
 
-   ingress {
-    description      = "TLS from vpc"
-    from_port        = 0
-    to_port          = 65535
-    protocol         = "tcp"
-    cidr_blocks      = ["10.0.1.0/24"]
+  ingress {
+    description = "TLS from vpc"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.1.0/24"]
   }
 
 
-   egress {
+  egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
@@ -150,30 +150,30 @@ resource "aws_security_group" "prisg" {
 }
 
 resource "aws_instance" "pub_instance" {
-  ami                             = "ami-01a00762f46d584a1"
-  instance_type                   = "t3.micro"
-  availability_zone               = "ap-south-1a"
-  associate_public_ip_address     = true
-  vpc_security_group_ids          = [aws_security_group.pubsg.id]
-  subnet_id                       = aws_subnet.pubsub.id
-  key_name                        = "linuxkey30-ppk"
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  availability_zone           = "ap-south-1a"
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [aws_security_group.pubsg.id]
+  subnet_id                   = aws_subnet.pubsub.id
+  key_name                    = var.key_name
 
-    tags = {
-    Name = "Public-Server"  
-    }
+  tags = {
+    Name = "Public-Server"
+  }
 }
 
 resource "aws_instance" "pri_instance" {
-  ami                             = "ami-01a00762f46d584a1"
-  instance_type                   = "t3.micro"
-  availability_zone               = "ap-south-1c"
-  associate_public_ip_address     = false
-  vpc_security_group_ids          = [aws_security_group.prisg.id]
-  subnet_id                       = aws_subnet.prisub.id
-  key_name                        = "linuxkey30-ppk"
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  availability_zone           = "ap-south-1c"
+  associate_public_ip_address = false
+  vpc_security_group_ids      = [aws_security_group.prisg.id]
+  subnet_id                   = aws_subnet.prisub.id
+  key_name                    = var.key_name
 
-    tags = {
-    Name = "Private-Server"  
-    }
+  tags = {
+    Name = "Private-Server"
+  }
 }
 
