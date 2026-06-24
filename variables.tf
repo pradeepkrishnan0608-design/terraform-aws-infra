@@ -17,3 +17,8 @@ variable "key_name" {
   description = "EC2 Key Pair"
   type        = string
 }
+
+variable "public_server_count" {
+  description = "Number of public EC2 instances"
+  type        = number
+}

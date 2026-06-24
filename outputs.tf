@@ -1,6 +1,6 @@
-output "public_instance_ip" {
-  description = "Public IP of EC2 instance in public subnet"
-  value       = aws_instance.pub_instance.public_ip
+output "public_instance_ips" {
+  description = "Public IPs of all public EC2 instances"
+  value       = aws_instance.pub_instance[*].public_ip
 }
 
 output "private_instance_ip" {

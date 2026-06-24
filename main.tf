@@ -150,6 +150,8 @@ resource "aws_security_group" "prisg" {
 }
 
 resource "aws_instance" "pub_instance" {
+
+  count                       = var.public_server_count
   ami                         = var.ami_id
   instance_type               = var.instance_type
   availability_zone           = "ap-south-1a"
