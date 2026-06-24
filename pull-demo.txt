@@ -1,2 +1,2 @@
-Version 1
-Created from Ubuntu VM
+Version 2
+Modified from github website
